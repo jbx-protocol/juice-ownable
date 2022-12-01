@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
  * This module is used through inheritance. It will make available the modifier
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner or an approved address.
- * 
+ *
  * Supports meta-transactions.
  */
 abstract contract Ownable is Context {
@@ -36,18 +36,20 @@ abstract contract Ownable is Context {
     IJBOperatorStore public immutable operatorStore;
 
     /**
-     * @notice 
-     * The IJBProjects to use to get the owner of a project
+        @notice
+        The IJBProjects to use to get the owner of a project
      */
     IJBProjects public immutable projects;
 
     /**
-     * The domain we should check (projectId)
+        @notice
+        The domain we should check (projectId)
      */
     uint256 public immutable domain;
 
     /**
-     * The permission that is required to act as the owner
+        @notice
+        The permission that is required to act as the owner
      */
     uint256 public immutable permissionIndex;
 
@@ -55,32 +57,35 @@ abstract contract Ownable is Context {
     // -------------------------- constructor ---------------------------- //
     //*********************************************************************//
 
-    /** 
-        @param _operatorStore A contract storing operator assignments.
-    */
+    /**
+      @param _projects the JBProjects to use to get the owner of the project
+      @param _operatorStore the operatorStore to use for the permissions
+      @param _projectId the projectId to use for the contract (also known as domain)
+      @param _permissionIndex the permission to check for to see if the caller has access
+     */
     constructor(
         IJBProjects _projects,
         IJBOperatorStore _operatorStore,
-        uint256 _domain,
+        uint256 _projectId,
         uint256 _permissionIndex
     ) {
         operatorStore = _operatorStore;
         projects = _projects;
-        domain = _domain;
+        domain = _projectId;
         permissionIndex = _permissionIndex;
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
-     */
+     @dev Throws if called by any account other than the owner.
+    */
     modifier onlyOwner() {
         _requirePermission(owner(), domain, permissionIndex);
         _;
     }
 
     /**
-     * @dev Returns the address of the current owner.
-     */
+     @notice Returns the address of the current project owner.
+    */
     function owner() public view virtual returns (address) {
         return projects.ownerOf(domain);
     }
@@ -101,7 +106,7 @@ abstract contract Ownable is Context {
         address _account,
         uint256 _domain,
         uint256 _permissionIndex
-    ) internal view {
+    ) internal view virtual {
         address _sender = _msgSender();
         if (
             _sender != _account &&
@@ -129,7 +134,7 @@ abstract contract Ownable is Context {
         uint256 _domain,
         uint256 _permissionIndex,
         bool _override
-    ) internal view {
+    ) internal view virtual {
         // short-circuit if the override is true
         if (_override) return;
         // Perform regular check otherwise
