@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
+// Juicebox variation on OpenZeppelin Ownable
 
 pragma solidity ^0.8.0;
 
@@ -21,9 +21,14 @@ import "@openzeppelin/contracts/utils/Context.sol";
  */
 abstract contract Ownable is Context {
     //*********************************************************************//
-    // --------------------------- custom errors -------------------------- //
+    // --------------------------- custom errors --------------------------//
     //*********************************************************************//
     error UNAUTHORIZED();
+
+    //*********************************************************************//
+    // --------------------------- custom events --------------------------//
+    //*********************************************************************//
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     //*********************************************************************//
     // ---------------- public immutable stored properties --------------- //
@@ -53,6 +58,12 @@ abstract contract Ownable is Context {
      */
     uint256 public immutable permissionIndex;
 
+    /**
+        @notice
+        Allows the project to transfer ownership to another address 
+     */
+    address private ownerOverride;
+
     //*********************************************************************//
     // -------------------------- constructor ---------------------------- //
     //*********************************************************************//
@@ -73,6 +84,9 @@ abstract contract Ownable is Context {
         projects = _projects;
         domain = _projectId;
         permissionIndex = _permissionIndex;
+
+        // TODO: Should we default to the project owner or the msg.sender?
+        _transferOwnership(address(_projects));
     }
 
     /**
@@ -87,7 +101,50 @@ abstract contract Ownable is Context {
      @notice Returns the address of the current project owner.
     */
     function owner() public view virtual returns (address) {
-        return projects.ownerOf(domain);
+        address _ownerOverride = ownerOverride;
+
+        if(_ownerOverride == address(projects)) 
+            return projects.ownerOf(domain);
+        
+        return _ownerOverride;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = ownerOverride;
+
+        // If the new owner is the project owner then we don't give ownership to the address
+        // but we give ownership to the 'JBProjects' to signal it is in control of the project
+        if (newOwner == projects.ownerOf(domain)) newOwner = address(projects);
+        // If the new owner is the same as the old one then we don't set it
+        if (oldOwner == newOwner) return;
+
+        // Set the new owner
+        ownerOverride = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
     }
 
     //*********************************************************************//
