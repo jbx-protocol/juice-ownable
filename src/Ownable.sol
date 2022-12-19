@@ -3,8 +3,9 @@
 
 pragma solidity ^0.8.0;
 
-import "@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol";
-import "@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol";
+// TODO: Link to correct file
+import { IJBOperatorStore } from "@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol";
+import { IJBProjects } from "@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol";
 
 import "@openzeppelin/contracts/utils/Context.sol";
 
@@ -86,7 +87,8 @@ abstract contract Ownable is Context {
         permissionIndex = _permissionIndex;
 
         // TODO: Should we default to the project owner or the msg.sender?
-        _transferOwnership(address(_projects));
+        //_transferOwnership(address(_projects));
+        _transferOwnership(msg.sender);
     }
 
     /**
@@ -138,7 +140,10 @@ abstract contract Ownable is Context {
 
         // If the new owner is the project owner then we don't give ownership to the address
         // but we give ownership to the 'JBProjects' to signal it is in control of the project
-        if (newOwner == projects.ownerOf(domain)) newOwner = address(projects);
+        if (
+            newOwner != address(0) &&
+            newOwner == projects.ownerOf(domain)
+        ) newOwner = address(projects);
         // If the new owner is the same as the old one then we don't set it
         if (oldOwner == newOwner) return;
 
