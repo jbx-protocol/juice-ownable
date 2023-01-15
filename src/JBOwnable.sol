@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import { JBOwner } from "./struct/JBOwner.sol";
+import { IJBOwnable } from "./interfaces/IJBOwnable.sol";
 
 import { IJBOperatorStore } from "@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol";
 import { IJBProjects } from "@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol";
@@ -20,7 +21,7 @@ import { Context } from "@openzeppelin/contracts/utils/Context.sol";
  *
  * Supports meta-transactions.
  */
-abstract contract JBOwnable is Context {
+abstract contract JBOwnable is Context, IJBOwnable {
     //*********************************************************************//
     // --------------------------- custom errors --------------------------//
     //*********************************************************************//
