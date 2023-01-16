@@ -154,6 +154,13 @@ abstract contract JBOwnable is Context, IJBOwnable {
     }
 
     /**
+     * @dev helper to allow for drop-in replacement of OZ
+     */
+    function _transferOwnership(address _newOwner) internal virtual {
+        _transferOwnership(_newOwner, 0);
+    }
+
+    /**
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Internal function without access restriction.
      */
