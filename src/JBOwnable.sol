@@ -164,7 +164,7 @@ abstract contract JBOwnable is Context, IJBOwnable {
         JBOwner memory _ownerData = jbOwner;
         // Get an address representation of the old owner
         address _oldOwner = _ownerData.projectId == 0 ?
-         _ownerData.owner : projects.ownerOf(_projectId);
+         _ownerData.owner : projects.ownerOf(_ownerData.projectId);
         // Update the storage to the new owner and reset the permissionIndex
         // this is to prevent clashing permissions for the new user/owner
         jbOwner = JBOwner({
