@@ -76,7 +76,7 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
         operatorStore = _operatorStore;
         projects = _projects;
 
-        _transferOwnership(msg.sender, 0);
+        _transferOwnership(msg.sender);
     }
 
     //*********************************************************************//
