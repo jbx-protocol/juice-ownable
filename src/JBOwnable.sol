@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import { JBOwner } from "./struct/JBOwner.sol";
 import { IJBOwnable } from "./interfaces/IJBOwnable.sol";
 
+import { IJBOperatable } from '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBOperatable.sol';
 import { IJBOperatorStore } from "@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol";
 import { IJBProjects } from "@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol";
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
@@ -21,11 +22,12 @@ import { Context } from "@openzeppelin/contracts/utils/Context.sol";
  *
  * Supports meta-transactions.
  */
-abstract contract JBOwnable is Context, IJBOwnable {
+abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
     // --------------------------- custom errors --------------------------//
     //*********************************************************************//
     error UNAUTHORIZED();
+    error INVALID_NEW_OWNER();
 
     //*********************************************************************//
     // --------------------------- custom events --------------------------//
@@ -77,6 +79,11 @@ abstract contract JBOwnable is Context, IJBOwnable {
         _transferOwnership(msg.sender, 0);
     }
 
+    //*********************************************************************//
+    // ---------------------------- modifiers ---------------------------- //
+    //*********************************************************************//
+
+
     /**
      @dev Throws if called by any account other than the owner.
     */
@@ -87,6 +94,42 @@ abstract contract JBOwnable is Context, IJBOwnable {
          _ownerData.owner : projects.ownerOf(_ownerData.projectId);
         
         _requirePermission(_owner, _ownerData.projectId, _ownerData.permissionIndex);
+        _;
+    }
+
+    /** 
+        @notice
+        Only allows the speficied account or an operator of the account to proceed. 
+
+        @param _account The account to check for.
+        @param _domain The domain namespace to look for an operator within. 
+        @param _permissionIndex The index of the permission to check for. 
+    */
+    modifier requirePermission(
+        address _account,
+        uint256 _domain,
+        uint256 _permissionIndex
+    ) {
+        _requirePermission(_account, _domain, _permissionIndex);
+        _;
+    }
+
+    /** 
+        @notice
+        Only allows the speficied account, an operator of the account to proceed, or a truthy override flag. 
+
+        @param _account The account to check for.
+        @param _domain The domain namespace to look for an operator within. 
+        @param _permissionIndex The index of the permission to check for. 
+        @param _override A condition to force allowance for.
+    */
+    modifier requirePermissionAllowingOverride(
+        address _account,
+        uint256 _domain,
+        uint256 _permissionIndex,
+        bool _override
+    ) {
+        _requirePermissionAllowingOverride(_account, _domain, _permissionIndex, _override);
         _;
     }
 
@@ -117,17 +160,20 @@ abstract contract JBOwnable is Context, IJBOwnable {
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Can only be called by the current owner.
      */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        _transferOwnership(newOwner, 0);
+    function transferOwnership(address _newOwner) public virtual onlyOwner {
+        if(_newOwner == address(0))
+            revert INVALID_NEW_OWNER();
+            
+        _transferOwnership(_newOwner, 0);
     }
 
     /**
      * @dev ProjectID is limited to a uint88, this should never give any issues
      */
     function transferOwnershipToProject(uint256 _projectId) public virtual onlyOwner {
-        require(_projectId != 0);
-        require(_projectId <= type(uint88).max);
+        if(_projectId == 0 || _projectId > type(uint88).max)
+            revert INVALID_NEW_OWNER();
+
         _transferOwnership(address(0), uint88(_projectId));
     }
 
