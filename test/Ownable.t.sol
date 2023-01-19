@@ -120,6 +120,47 @@ contract OwnableTest is Test {
         assertEq(projects.ownerOf(_projectId), _projectOwner);
     }
 
+    function testCantTransferToProjectZero(
+        address _deployer
+    ) public {
+        vm.startPrank(_deployer);
+
+        // Create the Ownable contract
+        MockOwnable ownable = new MockOwnable(
+            projects,
+            operatorStore
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(JBOwnable.INVALID_NEW_OWNER.selector)
+        );
+
+        // Transfer ownership to the project owner
+        ownable.transferOwnershipToProject(0);
+        vm.stopPrank();
+
+    }
+
+    function testCantTransferToAddressZero(
+        address _deployer
+    ) public {
+        vm.startPrank(_deployer);
+
+        // Create the Ownable contract
+        MockOwnable ownable = new MockOwnable(
+            projects,
+            operatorStore
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(JBOwnable.INVALID_NEW_OWNER.selector)
+        );
+
+        // Transfer ownership to the project owner
+        ownable.transferOwnership(address(0));
+        vm.stopPrank();
+    }
+
     function testOwnableDoesNotFollowProject(
         address _deployer,
         address _projectOwner,
