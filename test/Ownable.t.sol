@@ -172,6 +172,10 @@ contract OwnableTest is Test {
     }
 
     function testOwnableOwnerCanRennounce(address _owner) public {
+        vm.assume(
+            _owner != address(0)
+        );
+
         // Create the Ownable contract
         MockOwnable ownable = new MockOwnable(
             projects,
