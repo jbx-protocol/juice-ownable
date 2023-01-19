@@ -26,14 +26,9 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
     // --------------------------- custom errors --------------------------//
     //*********************************************************************//
+
     error UNAUTHORIZED();
     error INVALID_NEW_OWNER();
-
-    //*********************************************************************//
-    // --------------------------- custom events --------------------------//
-    //*********************************************************************//
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    event PermissionIndexChanged(uint8 newIndex);
 
     //*********************************************************************//
     // ---------------- public immutable stored properties --------------- //
@@ -52,14 +47,14 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     IJBProjects public immutable projects;
 
     //*********************************************************************//
-    // -------------------- private stored properties -------------------- //
+    // --------------------- public stored properties -------------------- //
     //*********************************************************************//
 
     /**
        @notice
        the JBOwner information
      */
-    JBOwner private jbOwner;
+    JBOwner public override jbOwner;
 
     //*********************************************************************//
     // -------------------------- constructor ---------------------------- //
@@ -133,8 +128,13 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
         _;
     }
 
+    //*********************************************************************//
+    // --------------------------- public methods ------------------------ //
+    //*********************************************************************//
+
     /**
      @notice Returns the address of the current project owner.
+     @dev if a juicebox project is set to be the owner this will return the address that owns the project
     */
     function owner() public view virtual returns (address) {
         JBOwner memory _ownerData = jbOwner;
@@ -146,19 +146,20 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     }
 
     /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
+       @notice Leaves the contract without owner. It will not be possible to call
+       `onlyOwner` functions anymore. Can only be called by the current owner.
+     
+       NOTE: Renouncing ownership will leave the contract without an owner,
+       thereby removing any functionality that is only available to the owner.
      */
     function renounceOwnership() public virtual onlyOwner {
         _transferOwnership(address(0), 0);
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
+       @notice Transfers ownership of the contract to a new account (`newOwner`).
+       Can only be called by the current owner.
+       @param _newOwner the static address that should receive ownership
      */
     function transferOwnership(address _newOwner) public virtual onlyOwner {
         if(_newOwner == address(0))
@@ -168,7 +169,9 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     }
 
     /**
-     * @dev ProjectID is limited to a uint88, this should never give any issues
+       @notice Transfer ownershipt of the contract to a (Juicebox) project
+       @dev ProjectID is limited to a uint88
+       @param _projectId the project that should receive ownership
      */
     function transferOwnershipToProject(uint256 _projectId) public virtual onlyOwner {
         if(_projectId == 0 || _projectId > type(uint88).max)
@@ -178,8 +181,8 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     }
 
     /**
-     * @notice Sets the permission index that allows other callers to perform operations on behave of the project owner
-     * @param _permissionIndex the permissionIndex to use for 'onlyOwner' calls
+       @notice Sets the permission index that allows other callers to perform operations on behave of the project owner
+       @param _permissionIndex the permissionIndex to use for 'onlyOwner' calls
      */
     function setPermissionIndex(uint8 _permissionIndex) public virtual onlyOwner {
         _setPermissionIndex(_permissionIndex);
@@ -190,9 +193,10 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
 
     /**
-     * @dev Sets the permission index that allows other callers to perform operations on behave of the project owner
-     * Internal function without access restriction.
-     * @param _permissionIndex the permissionIndex to use for 'onlyOwner' calls
+       @dev Sets the permission index that allows other callers to perform operations on behave of the project owner
+       Internal function without access restriction.
+
+       @param _permissionIndex the permissionIndex to use for 'onlyOwner' calls
      */
     function _setPermissionIndex(uint8 _permissionIndex) internal virtual {
         jbOwner.permissionIndex = _permissionIndex;
@@ -200,15 +204,20 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     }
 
     /**
-     * @dev helper to allow for drop-in replacement of OZ
+       @dev helper to allow for drop-in replacement of OZ
+
+       @param _newOwner the static address that should become the owner of this contract
      */
     function _transferOwnership(address _newOwner) internal virtual {
         _transferOwnership(_newOwner, 0);
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Internal function without access restriction.
+       @dev Transfers ownership of the contract to a new account (`_newOwner`) OR a project (`_projectID`).
+       Internal function without access restriction.
+
+       @param _newOwner the static owner address that should receive ownership
+       @param _projectId the projectId this contract should follow ownership of
      */
     function _transferOwnership(address _newOwner, uint88 _projectId) internal virtual {
         // Can't both set a new owner and set a projectId to have ownership
@@ -234,7 +243,7 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
 
     /** 
-    @notice
+    @dev
     Require the message sender is either the account or has the specified permission.
 
     @param _account The account to allow.
@@ -260,7 +269,7 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     }
 
     /** 
-    @notice
+    @dev
     Require the message sender is either the account, has the specified permission, or the override condition is true.
 
     @param _account The account to allow.
