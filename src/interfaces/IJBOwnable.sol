@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 interface IJBOwnable {
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
+    // event OwnershipTransferred(
+    //     address indexed previousOwner,
+    //     address indexed newOwner
+    // );
     event PermissionIndexChanged(uint8 newIndex);
 
     function jbOwner()
