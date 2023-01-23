@@ -1,4 +1,14 @@
 {
+  "name": "@jbx-protocol/juice-ownable",
+  "bugs": {
+    "url": "https://github.com/jbx-protocol/juice-ownable/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbx-protocol/juice-ownable"
+  },
+  "version": "0.0.1",
+  "license": "MIT",
   "dependencies": {
     "@jbx-protocol/juice-contracts-v3": "^2.0.2",
     "@openzeppelin/contracts": "^4.8.0"
