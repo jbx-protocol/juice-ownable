@@ -78,6 +78,14 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     // ---------------------------- modifiers ---------------------------- //
     //*********************************************************************//
 
+    /**
+    * @dev Throws if called by any account other than the owner.
+    */
+    modifier onlyOwner() virtual {
+        _checkOwner();
+        _;
+    }
+
     /** 
         @notice
         Only allows the speficied account or an operator of the account to proceed. 
@@ -118,12 +126,17 @@ abstract contract JBOwnable is Context, IJBOwnable, IJBOperatable {
     // --------------------------- public methods ------------------------ //
     //*********************************************************************//
 
-   /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() virtual {
-        _checkOwner();
-        _;
+    /**
+     @notice Returns the address of the current project owner.
+     @dev if a juicebox project is set to be the owner this will return the address that owns the project
+    */
+    function owner() public view virtual returns (address) {
+        JBOwner memory _ownerData = jbOwner;
+
+        if(_ownerData.projectId == 0)
+            return _ownerData.owner;
+
+        return projects.ownerOf(_ownerData.projectId);
     }
 
     /**
