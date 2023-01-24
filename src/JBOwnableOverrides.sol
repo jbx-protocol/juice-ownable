@@ -22,7 +22,7 @@ import { Context } from "@openzeppelin/contracts/utils/Context.sol";
  *
  * Supports meta-transactions.
  */
-abstract contract JBOwnablePartial is Context, IJBOwnable, IJBOperatable {
+abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
     // --------------------------- custom errors --------------------------//
     //*********************************************************************//
