@@ -4,8 +4,8 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "../src/JBOwnable.sol";
 
-import {JBOperatorStore, JBOperatorData} from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
-import {JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
+import {IJBOperatorStore, JBOperatorStore, JBOperatorData} from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
+import {IJBProjects, JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
 
 contract OwnableTest is Test {
     IJBProjects projects;
@@ -132,7 +132,7 @@ contract OwnableTest is Test {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(JBOwnable.INVALID_NEW_OWNER.selector)
+            abi.encodeWithSelector(JBOwnableOverrides.INVALID_NEW_OWNER.selector)
         );
 
         // Transfer ownership to the project owner
@@ -153,7 +153,7 @@ contract OwnableTest is Test {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(JBOwnable.INVALID_NEW_OWNER.selector)
+            abi.encodeWithSelector(JBOwnableOverrides.INVALID_NEW_OWNER.selector)
         );
 
         // Transfer ownership to the project owner
@@ -298,7 +298,7 @@ contract OwnableTest is Test {
 
         // Attempt to call the protected method without permission
         vm.expectRevert(
-            abi.encodeWithSelector(JBOwnable.UNAUTHORIZED.selector)
+            abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
         );
         vm.prank(_callerAddress);
         ownable.protectedMethod();
@@ -324,7 +324,7 @@ contract OwnableTest is Test {
 
         if(!_shouldHavePermission)
          vm.expectRevert(
-            abi.encodeWithSelector(JBOwnable.UNAUTHORIZED.selector)
+            abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
          );
 
         vm.prank(_callerAddress);
