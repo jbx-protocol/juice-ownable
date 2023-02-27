@@ -28,7 +28,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
     //*********************************************************************//
 
     error UNAUTHORIZED();
-    error INVALID_NEW_OWNER();
+    error INVALID_NEW_OWNER(address ownerAddress, uint256 projectId);
 
     //*********************************************************************//
     // ---------------- public immutable stored properties --------------- //
@@ -150,7 +150,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
     function transferOwnership(address _newOwner) public virtual {
         _checkOwner();
         if(_newOwner == address(0))
-            revert INVALID_NEW_OWNER();
+            revert INVALID_NEW_OWNER(_newOwner, 0);
             
         _transferOwnership(_newOwner, 0);
     }
@@ -163,7 +163,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
     function transferOwnershipToProject(uint256 _projectId) public virtual {
         _checkOwner();
         if(_projectId == 0 || _projectId > type(uint88).max)
-            revert INVALID_NEW_OWNER();
+            revert INVALID_NEW_OWNER(address(0), _projectId);
 
         _transferOwnership(address(0), uint88(_projectId));
     }
@@ -210,7 +210,8 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
      */
     function _transferOwnership(address _newOwner, uint88 _projectId) internal virtual {
         // Can't both set a new owner and set a projectId to have ownership
-        require(_newOwner == address(0) || _projectId == 0);
+        if (_projectId != 0 && _newOwner != address(0))
+            revert INVALID_NEW_OWNER(_newOwner, _projectId); 
         // Load the owner data from storage
         JBOwner memory _ownerData = jbOwner;
         // Get an address representation of the old owner

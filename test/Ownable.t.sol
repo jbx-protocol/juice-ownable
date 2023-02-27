@@ -132,7 +132,11 @@ contract OwnableTest is Test {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(JBOwnableOverrides.INVALID_NEW_OWNER.selector)
+            abi.encodeWithSelector(
+                JBOwnableOverrides.INVALID_NEW_OWNER.selector,
+                address(0), // Owner address
+                uint256(0)  // ProjectID 
+            )
         );
 
         // Transfer ownership to the project owner
@@ -153,7 +157,11 @@ contract OwnableTest is Test {
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(JBOwnableOverrides.INVALID_NEW_OWNER.selector)
+            abi.encodeWithSelector(
+                JBOwnableOverrides.INVALID_NEW_OWNER.selector,
+                address(0), // Owner address
+                uint256(0)  // ProjectID 
+            )
         );
 
         // Transfer ownership to the project owner
