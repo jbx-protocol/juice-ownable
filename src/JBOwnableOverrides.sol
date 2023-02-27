@@ -120,7 +120,6 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
 
     /**
      @notice Returns the address of the current project owner.
-     @dev if a juicebox project is set to be the owner this will return the address that owns the project
     */
     function owner() public view virtual returns (address) {
         JBOwner memory _ownerData = jbOwner;

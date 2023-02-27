@@ -20,7 +20,7 @@ contract JBOwnable is JBOwnableOverrides {
     ) JBOwnableOverrides(_projects, _operatorStore) {}
 
     /**
-     * @dev Throws if called by any account other than the owner.
+     * @dev Throws if called by an account that is not the owner and does not have permission to act as the owner
      */
     modifier onlyOwner() virtual {
         _checkOwner();
