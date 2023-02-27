@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/JBOwnable.sol";
+import { MockOwnable, JBOwnableOverrides } from "./mocks/MockOwnable.sol";
 
 import {IJBOperatorStore, JBOperatorStore, JBOperatorData} from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
 import {IJBProjects, JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
@@ -21,7 +21,7 @@ contract OwnableTest is Test {
     }
 
     function setUp() public {
-        // Deploy the operatorStore
+        // Deploy the operatorStore 
         operatorStore = new JBOperatorStore();
         // Deploy the JBProjects
         projects = new JBProjects(operatorStore);
@@ -330,26 +330,12 @@ contract OwnableTest is Test {
             })
         );
 
-        if(!_shouldHavePermission)
+        if(!_shouldHavePermission && _callerAddress != _projectOwner)
          vm.expectRevert(
             abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
          );
 
         vm.prank(_callerAddress);
         ownable.protectedMethod();
-    }
-}
-
-contract MockOwnable is JBOwnable {
-    event ProtectedMethodCalled();
-
-    constructor(
-        IJBProjects _projects,
-        IJBOperatorStore _operatorStore
-    ) JBOwnable(_projects, _operatorStore) {}
-
-
-    function protectedMethod() external onlyOwner {
-        emit ProtectedMethodCalled();
     }
 }
