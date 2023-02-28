@@ -277,7 +277,8 @@ contract OwnableTest is Test {
     ) public isNotContract(_projectOwner) {
         // CreateFor won't work if the address is a contract (that doesn't support ERC721Receiver)
         vm.assume(
-            _projectOwner != address(0)
+            _projectOwner != address(0) &&
+            _callerAddress != _projectOwner
         );
 
         vm.assume(
@@ -330,7 +331,7 @@ contract OwnableTest is Test {
             })
         );
 
-        if(!_shouldHavePermission && _callerAddress != _projectOwner)
+        if(!_shouldHavePermission)
          vm.expectRevert(
             abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
          );
