@@ -1,3 +1,6 @@
 [submodule "lib/forge-std"]
 	path = lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/foundry-invariant-helpers"]
+	path = lib/foundry-invariant-helpers
+	url = https://github.com/xBA5ED/foundry-invariant-helpers
