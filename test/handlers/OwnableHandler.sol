@@ -6,15 +6,18 @@ import {CommonBase} from "forge-std/Base.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {StdUtils} from "forge-std/StdUtils.sol";
 import {console} from "forge-std/console.sol";
+import {StdAssertions} from "forge-std/StdAssertions.sol";
 
 import { MockOwnable, JBOwnableOverrides } from "../mocks/MockOwnable.sol";
 import { IJBOperatorStore, JBOperatorStore, JBOperatorData } from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
 import { IJBProjects, JBProjects, JBProjectMetadata } from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
 
-contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
+contract OwnableHandler is CommonBase, StdCheats, StdUtils, StdAssertions  {
     IJBProjects immutable public projects;
     IJBOperatorStore immutable public operatorStore;
     MockOwnable immutable public ownable;
+
+    uint256[] public projectIds;
 
     address[] public actors;
     address internal currentActor;
@@ -26,12 +29,16 @@ contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
         vm.stopPrank();
     }
 
-    constructor() {
+
+    constructor(
+        JBOperatorStore _operatorStore,
+        JBProjects _projects
+    ) {
         address _initialOwner = vm.addr(1);
         // Deploy the operatorStore
-        operatorStore = new JBOperatorStore();
+        operatorStore = _operatorStore; //new JBOperatorStore();
         // Deploy the JBProjects
-        projects = new JBProjects(operatorStore);
+        projects = _projects; //new JBProjects(operatorStore);
         // Deploy the JBOwnable
         vm.prank(_initialOwner);
         ownable = new MockOwnable(
@@ -43,10 +50,31 @@ contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
         actors.push(address(420));
     }
 
-    function transferOwnershipToAddress(
-        uint256 actorIndexSeed,
-        address _newOwner
-    ) public useActor(actorIndexSeed) {
-        ownable.transferOwnership(_newOwner);
-    }
+    // function transferOwnershipToAddress(
+    //     uint256 actorIndexSeed,
+    //     address newOwner
+    // ) public useActor(actorIndexSeed) {
+    //     // Transfer to new Owner
+    //     vm.prank(currentActor);
+    //     ownable.transferOwnership(newOwner);
+
+    //     // Register the newOwner as an actor
+    //     actors.push(newOwner);
+
+    //     assertEq(
+    //         ownable.owner(),
+    //         newOwner
+    //     );
+    // }
+
+    //  function transferOwnershipToProject(
+    //     uint256 projectIdSeed
+    // ) public {
+    //     revert();
+    //     uint256 _projectId = bound(projectIdSeed, 0, projects.count() + 1);
+    //     //uint256 _projectId = projectIds[bound(projectIdSeed, 0, projectIds.length - 1)];
+
+    //     vm.prank(ownable.owner());
+    //     ownable.transferOwnershipToProject(_projectId);
+    // }
 }
