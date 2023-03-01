@@ -2,79 +2,69 @@
 pragma solidity ^0.8.13;
 
 // import { Test } from "forge-std/Test.sol";
-import {CommonBase} from "forge-std/Base.sol";
-import {StdCheats} from "forge-std/StdCheats.sol";
-import {StdUtils} from "forge-std/StdUtils.sol";
-import {console} from "forge-std/console.sol";
-import {StdAssertions} from "forge-std/StdAssertions.sol";
+import {JBBaseHandler} from "../helpers/JBBaseHandler.sol";
 
-import { MockOwnable, JBOwnableOverrides } from "../mocks/MockOwnable.sol";
-import { IJBOperatorStore, JBOperatorStore, JBOperatorData } from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
-import { IJBProjects, JBProjects, JBProjectMetadata } from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
+import {MockOwnable, JBOwnableOverrides} from "../mocks/MockOwnable.sol";
+import {
+    IJBOperatorStore,
+    JBOperatorStore,
+    JBOperatorData
+} from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
+import {IJBProjects, JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
 
-contract OwnableHandler is CommonBase, StdCheats, StdUtils, StdAssertions  {
-    IJBProjects immutable public projects;
-    IJBOperatorStore immutable public operatorStore;
-    MockOwnable immutable public ownable;
+contract OwnableHandler is JBBaseHandler {
+    IJBOperatorStore public immutable operatorStore;
+    MockOwnable public immutable ownable;
 
-    uint256[] public projectIds;
-
-    address[] public actors;
-    address internal currentActor;
-
-    modifier useActor(uint256 actorIndexSeed) {
-        currentActor = actors[bound(actorIndexSeed, 0, actors.length - 1)];
-        vm.startPrank(currentActor);
-        _;
-        vm.stopPrank();
-    }
-
-
-    constructor(
-        JBOperatorStore _operatorStore,
-        JBProjects _projects
-    ) {
+    constructor(JBOperatorStore _operatorStore, JBProjects _projects) JBBaseHandler("OwnableHandler", _projects) {
         address _initialOwner = vm.addr(1);
-        // Deploy the operatorStore
-        operatorStore = _operatorStore; //new JBOperatorStore();
-        // Deploy the JBProjects
-        projects = _projects; //new JBProjects(operatorStore);
+        operatorStore = _operatorStore;
         // Deploy the JBOwnable
         vm.prank(_initialOwner);
         ownable = new MockOwnable(
-            projects,
+            _projects,
             operatorStore
         );
 
-        actors.push(_initialOwner);
-        actors.push(address(420));
+        addToFunctionSet("transferOwnershipToAddress", this.transferOwnershipToAddress.selector);
+        addToFunctionSet("transferOwnershipToProject", this.transferOwnershipToProject.selector);
+        addToFunctionSet("renounceOwnership", this.renounceOwnership.selector);
     }
 
-    // function transferOwnershipToAddress(
-    //     uint256 actorIndexSeed,
-    //     address newOwner
-    // ) public useActor(actorIndexSeed) {
-    //     // Transfer to new Owner
-    //     vm.prank(currentActor);
-    //     ownable.transferOwnership(newOwner);
+    function transferOwnershipToAddress(
+        uint256 actorIndexSeed,
+        address newOwner
+    ) public registerCall useActor(actorIndexSeed) {
+        // Can't transfer to a 0 address
+        if (newOwner == address(0))
+            return renounceOwnership();
+        
+        // The new owner should be an actor
+        addActor(newOwner);
 
-    //     // Register the newOwner as an actor
-    //     actors.push(newOwner);
+        // Transfer to new Owner
+        vm.prank(ownable.owner());
+        ownable.transferOwnership(newOwner);
 
-    //     assertEq(
-    //         ownable.owner(),
-    //         newOwner
-    //     );
-    // }
+        assertEq(
+            ownable.owner(),
+            newOwner
+        );
+    }
 
-    //  function transferOwnershipToProject(
-    //     uint256 projectIdSeed
-    // ) public {
-    //     revert();
-    //     uint256 _projectId = bound(projectIdSeed, 0, projects.count() + 1);
-    //     //uint256 _projectId = projectIds[bound(projectIdSeed, 0, projectIds.length - 1)];
+     function transferOwnershipToProject(
+        uint256 projectIdSeed
+    ) public registerCall useProject(projectIdSeed) {
+        vm.prank(ownable.owner());
+        ownable.transferOwnershipToProject(currentProjectId);
+    }
 
-    //     vm.prank(ownable.owner());
-    //     ownable.transferOwnershipToProject(_projectId);
-    // }
+    function renounceOwnership() public registerCall {
+        // Check if already renounced
+        if(ownable.owner() == address(0))
+            return;
+
+        vm.prank(ownable.owner());
+        ownable.renounceOwnership();
+    }
 }
