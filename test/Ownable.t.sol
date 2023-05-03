@@ -339,4 +339,74 @@ contract OwnableTest is Test {
         vm.prank(_callerAddress);
         ownable.protectedMethod();
     }
+
+    function testJBOwnablePermissionsRequiredModifier(
+        address _projectOwner,
+        address _callerAddress,
+        uint8 _permissionIndexRequired,
+        uint8[] memory _permissionsToGrant
+    ) public isNotContract(_projectOwner) {
+        // CreateFor won't work if the address is a contract (that doesn't support ERC721Receiver)
+        vm.assume(
+            _projectOwner != address(0) &&
+            _callerAddress != _projectOwner
+        );
+
+        vm.assume(
+            _permissionsToGrant.length < 5
+        );
+
+        // Create a project for the owner
+        uint256 _projectId = projects.createFor(
+            _projectOwner,
+            JBProjectMetadata("", 0)
+        );
+
+        // Create the Ownable contract
+        MockOwnable ownable = new MockOwnable(
+            projects,
+            operatorStore
+        );
+
+        // Transfer ownership to the project owner
+        ownable.transferOwnershipToProject(_projectId);
+        assertEq(_projectOwner, ownable.owner(), "Project owner is not the owner");
+
+        // Set the permission that is required
+        ownable.setPermission(_permissionIndexRequired);
+
+        // Attempt to call the protected method without permission
+        vm.expectRevert(
+            abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
+        );
+        vm.prank(_callerAddress);
+        ownable.protectedMethodWithRequirePermission();
+
+        // Give permission
+        bool _shouldHavePermission;
+        uint256[] memory _permissionIndexes = new uint256[](_permissionsToGrant.length);
+        for(uint256 i; i < _permissionsToGrant.length; i++){
+            // Check if the permission we need is in the set
+            if(_permissionsToGrant[i] == _permissionIndexRequired) _shouldHavePermission = true;
+            _permissionIndexes[i] = _permissionsToGrant[i];
+        }
+
+        // The owner gives permission to the caller
+        vm.prank(_projectOwner);
+        operatorStore.setOperator(
+            JBOperatorData({
+                operator: _callerAddress,
+                domain: _projectId,
+                permissionIndexes: _permissionIndexes
+            })
+        );
+
+        if(!_shouldHavePermission)
+         vm.expectRevert(
+            abi.encodeWithSelector(JBOwnableOverrides.UNAUTHORIZED.selector)
+         );
+
+        vm.prank(_callerAddress);
+        ownable.protectedMethodWithRequirePermission();
+    }
 }
