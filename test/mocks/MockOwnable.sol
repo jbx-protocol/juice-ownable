@@ -6,6 +6,12 @@ import {JBOwnable, IJBProjects, IJBOperatorStore, JBOwnableOverrides} from "../.
 contract MockOwnable is JBOwnable {
     event ProtectedMethodCalled();
 
+    uint256 permission;
+
+    function setPermission(uint256 _permission) external {
+        permission = _permission;
+    }
+
     constructor(
         IJBProjects _projects,
         IJBOperatorStore _operatorStore
@@ -13,6 +19,10 @@ contract MockOwnable is JBOwnable {
 
 
     function protectedMethod() external onlyOwner {
+        emit ProtectedMethodCalled();
+    }
+
+    function protectedMethodWithRequirePermission() external requirePermissionFromOwner(permission) {
         emit ProtectedMethodCalled();
     }
 }
