@@ -95,6 +95,24 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
         _;
     }
 
+     /** 
+        @notice
+        Only allows callers that have received permission from the projectOwner for this project.
+
+        @param _permissionIndex The index of the permission to check for. 
+    */
+    modifier requirePermissionFromOwner(
+        uint256 _permissionIndex
+    ) {
+        JBOwner memory _ownerData = jbOwner;
+
+        address _owner = _ownerData.projectId == 0 ?
+         _ownerData.owner : projects.ownerOf(_ownerData.projectId);
+
+        _requirePermission(_owner, _ownerData.projectId, _permissionIndex);
+        _;
+    }
+
     /** 
         @notice
         Only allows the speficied account, an operator of the account to proceed, or a truthy override flag. 
