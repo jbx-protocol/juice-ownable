@@ -98,10 +98,12 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
      /** 
         @notice
         Only allows callers that have received permission from the projectOwner for this project.
-
+        
+        @param _domain The domain namespace to look for an operator within.
         @param _permissionIndex The index of the permission to check for. 
     */
     modifier requirePermissionFromOwner(
+        uint256 _domain,
         uint256 _permissionIndex
     ) {
         JBOwner memory _ownerData = jbOwner;
@@ -109,7 +111,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
         address _owner = _ownerData.projectId == 0 ?
          _ownerData.owner : projects.ownerOf(_ownerData.projectId);
 
-        _requirePermission(_owner, _ownerData.projectId, _permissionIndex);
+        _requirePermission(_owner, _domain, _permissionIndex);
         _;
     }
 
