@@ -22,7 +22,7 @@ contract MockOwnable is JBOwnable {
         emit ProtectedMethodCalled();
     }
 
-    function protectedMethodWithRequirePermission() external requirePermissionFromOwner(permission) {
+    function protectedMethodWithRequirePermission() external requirePermissionFromProject(permission) {
         emit ProtectedMethodCalled();
     }
 }

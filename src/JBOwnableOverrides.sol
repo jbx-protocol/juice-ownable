@@ -99,12 +99,18 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
         @notice
         Only allows callers that have received permission from the projectOwner for this project.
 
+        @dev If the owner is not a project then this will always revert
+
         @param _permissionIndex The index of the permission to check for. 
     */
-    modifier requirePermissionFromOwner(
+    modifier requirePermissionFromProject(
         uint256 _permissionIndex
     ) {
         JBOwner memory _ownerData = jbOwner;
+
+        // If the owner is not a project then this should always revert
+        if (_ownerData.projectId == 0)
+            revert UNAUTHORIZED();
 
         address _owner = _ownerData.projectId == 0 ?
          _ownerData.owner : projects.ownerOf(_ownerData.projectId);
