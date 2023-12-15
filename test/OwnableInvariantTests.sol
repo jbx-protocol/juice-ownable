@@ -5,8 +5,11 @@ import { Test } from "forge-std/Test.sol";
 import { OwnableHandler } from "./handlers/OwnableHandler.sol";
 
 import { MockOwnable, JBOwnableOverrides } from "./mocks/MockOwnable.sol";
-import { IJBOperatorStore, JBOperatorStore, JBOperatorData } from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
-import {IJBProjects, JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
+import {JBPermissions} from "lib/juice-contracts-v4/src/JBPermissions.sol";
+import {IJBPermissions} from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
+import {JBPermissionsData} from "lib/juice-contracts-v4/src/structs/JBPermissionsData.sol";
+import {JBProjects} from "lib/juice-contracts-v4/src/JBProjects.sol";
+import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
 
 contract OwnableInvariantTests is Test {
     OwnableHandler handler;

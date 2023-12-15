@@ -4,12 +4,15 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import { MockOwnable, JBOwnableOverrides } from "./mocks/MockOwnable.sol";
 
-import {IJBOperatorStore, JBOperatorStore, JBOperatorData} from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
-import {IJBProjects, JBProjects, JBProjectMetadata} from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
+import {JBPermissions} from "lib/juice-contracts-v4/src/JBPermissions.sol";
+import {JBProjects} from "lib/juice-contracts-v4/src/JBProjects.sol";
+import {IJBPermissions} from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
+import {JBPermissionsData} from "lib/juice-contracts-v4/src/structs/JBPermissionsData.sol";
+import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
 
 contract OwnableTest is Test {
     IJBProjects projects;
-    IJBOperatorStore operatorStore;
+    IJBPermissions operatorStore;
 
     modifier isNotContract(address _a) {
         uint size;
@@ -22,7 +25,7 @@ contract OwnableTest is Test {
 
     function setUp() public {
         // Deploy the operatorStore 
-        operatorStore = new JBOperatorStore();
+        operatorStore = new JBPermissions();
         // Deploy the JBProjects
         projects = new JBProjects(operatorStore);
     }
@@ -55,7 +58,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -94,7 +97,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -187,7 +190,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -250,7 +253,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -288,7 +291,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -324,7 +327,7 @@ contract OwnableTest is Test {
         // The owner gives permission to the caller
         vm.prank(_projectOwner);
         operatorStore.setOperator(
-            JBOperatorData({
+            JBPermissionsData({
                 operator: _callerAddress,
                 domain: _projectId,
                 permissionIndexes: _permissionIndexes
@@ -359,7 +362,7 @@ contract OwnableTest is Test {
         // Create a project for the owner
         uint256 _projectId = projects.createFor(
             _projectOwner,
-            JBProjectMetadata("", 0)
+""
         );
 
         // Create the Ownable contract
@@ -394,7 +397,7 @@ contract OwnableTest is Test {
         // The owner gives permission to the caller
         vm.prank(_projectOwner);
         operatorStore.setOperator(
-            JBOperatorData({
+            JBPermissionsData({
                 operator: _callerAddress,
                 domain: _projectId,
                 permissionIndexes: _permissionIndexes

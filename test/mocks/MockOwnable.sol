@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {JBOwnable, IJBProjects, IJBOperatorStore, JBOwnableOverrides} from "../../src/JBOwnable.sol";
+import {JBOwnable, JBOwnableOverrides} from "../../src/JBOwnable.sol";
+import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
+import {IJBPermissions} from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
 
 contract MockOwnable is JBOwnable {
     event ProtectedMethodCalled();
@@ -14,7 +16,7 @@ contract MockOwnable is JBOwnable {
 
     constructor(
         IJBProjects _projects,
-        IJBOperatorStore _operatorStore
+        IJBPermissions _operatorStore
     ) JBOwnable(_projects, _operatorStore) {}
 
 

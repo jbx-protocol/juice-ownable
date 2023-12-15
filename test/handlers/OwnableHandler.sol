@@ -8,12 +8,15 @@ import {StdUtils} from "forge-std/StdUtils.sol";
 import {console} from "forge-std/console.sol";
 
 import { MockOwnable, JBOwnableOverrides } from "../mocks/MockOwnable.sol";
-import { IJBOperatorStore, JBOperatorStore, JBOperatorData } from "@jbx-protocol/juice-contracts-v3/contracts/JBOperatorStore.sol";
-import { IJBProjects, JBProjects, JBProjectMetadata } from "@jbx-protocol/juice-contracts-v3/contracts/JBProjects.sol";
+import {IJBPermissions} from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
+import {JBPermissions} from "lib/juice-contracts-v4/src/JBPermissions.sol";
+import {JBPermissionsData} from "lib/juice-contracts-v4/src/structs/JBPermissions.sol";
+import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
+import {JBProjects} from "lib/juice-contracts-v4/src/JBProjects.sol";
 
 contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
     IJBProjects immutable public projects;
-    IJBOperatorStore immutable public operatorStore;
+    IJBPermissions immutable public operatorStore;
     MockOwnable immutable public ownable;
 
     address[] public actors;
@@ -29,7 +32,7 @@ contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
     constructor() {
         address _initialOwner = vm.addr(1);
         // Deploy the operatorStore
-        operatorStore = new JBOperatorStore();
+        operatorStore = new JBPermissions();
         // Deploy the JBProjects
         projects = new JBProjects(operatorStore);
         // Deploy the JBOwnable

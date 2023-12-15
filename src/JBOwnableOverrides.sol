@@ -6,9 +6,9 @@ pragma solidity ^0.8.0;
 import { JBOwner } from "./struct/JBOwner.sol";
 import { IJBOwnable } from "./interfaces/IJBOwnable.sol";
 
-import { IJBOperatable } from '@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBOperatable.sol';
-import { IJBOperatorStore } from "@jbx-protocol/juice-contracts-v3/contracts/abstract/JBOperatable.sol";
-import { IJBProjects } from "@jbx-protocol/juice-contracts-v3/contracts/interfaces/IJBProjects.sol";
+import { IJBPermissioned } from 'lib/juice-contracts-v4/src/interfaces/IJBPermissioned.sol';
+import { IJBPermissions } from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
+import { IJBProjects } from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 
 /**
@@ -22,7 +22,7 @@ import { Context } from "@openzeppelin/contracts/utils/Context.sol";
  *
  * Supports meta-transactions.
  */
-abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
+abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     //*********************************************************************//
     // --------------------------- custom errors --------------------------//
     //*********************************************************************//
@@ -38,7 +38,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
         @notice 
         A contract storing operator assignments.
     */
-    IJBOperatorStore public immutable operatorStore;
+    IJBPermissions public immutable operatorStore;
 
     /**
         @notice
@@ -66,7 +66,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBOperatable {
      */
     constructor(
         IJBProjects _projects,
-        IJBOperatorStore _operatorStore
+        IJBPermissions _operatorStore
     ) {
         operatorStore = _operatorStore;
         projects = _projects;

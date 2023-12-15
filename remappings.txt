@@ -1,3 +1,2 @@
-@openzeppelin=node_modules/@openzeppelin/
-@paulrberg=node_modules/@paulrberg/
-@jbx-protocol=node_modules/@jbx-protocol/
+@openzeppelin=lib/juice-contracts-v4/lib/openzeppelin-contracts/
+@paulrberg=lib/juice-contracts-v4/lib/prb-math/
