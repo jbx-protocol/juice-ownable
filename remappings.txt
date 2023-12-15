@@ -1,2 +1,2 @@
-@openzeppelin=lib/juice-contracts-v4/lib/openzeppelin-contracts/
-@paulrberg=lib/juice-contracts-v4/lib/prb-math/
+@openzeppelin/=lib/juice-contracts-v4/lib/openzeppelin-contracts/
+@paulrberg/=lib/juice-contracts-v4/lib/prb-math/

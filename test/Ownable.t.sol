@@ -12,7 +12,7 @@ import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol
 
 contract OwnableTest is Test {
     IJBProjects projects;
-    IJBPermissions operatorStore;
+    IJBPermissions permissions;
 
     modifier isNotContract(address _a) {
         uint256 size;
@@ -24,13 +24,16 @@ contract OwnableTest is Test {
     }
 
     function setUp() public {
-        // Deploy the operatorStore
-        operatorStore = new JBPermissions();
+        // Deploy the permissions
+        permissions = new JBPermissions();
         // Deploy the JBProjects
-        projects = new JBProjects(operatorStore);
+        projects = new JBProjects(permissions);
     }
 
-    function testDeployerBecomesOwner(address _projectOwner, address _owner)
+    function testDeployerBecomesOwner(
+        address _projectOwner,
+        address _owner
+    )
         public
         isNotContract(_projectOwner)
         isNotContract(_owner)
@@ -39,12 +42,15 @@ contract OwnableTest is Test {
         vm.assume(_projectOwner != address(0));
 
         vm.prank(_owner);
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         assertEq(_owner, ownable.owner(), "Deployer is not the owner");
     }
 
-    function testJBOwnableFollowsTheProjectOwner(address _projectOwner, address _newProjectOwner)
+    function testJBOwnableFollowsTheProjectOwner(
+        address _projectOwner,
+        address _newProjectOwner
+    )
         public
         isNotContract(_projectOwner)
         isNotContract(_newProjectOwner)
@@ -58,7 +64,7 @@ contract OwnableTest is Test {
         uint256 _projectId = projects.createFor(_projectOwner, "");
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnershipToProject(_projectId);
@@ -74,7 +80,10 @@ contract OwnableTest is Test {
         assertEq(_newProjectOwner, ownable.owner(), "Ownable did not follow the Project owner");
     }
 
-    function testBasicOwnable(address _projectOwner, address _newOwnableOwner)
+    function testBasicOwnable(
+        address _projectOwner,
+        address _newOwnableOwner
+    )
         public
         isNotContract(_projectOwner)
         isNotContract(_newOwnableOwner)
@@ -88,7 +97,7 @@ contract OwnableTest is Test {
         uint256 _projectId = projects.createFor(_projectOwner, "");
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnershipToProject(_projectId);
@@ -108,7 +117,7 @@ contract OwnableTest is Test {
         vm.startPrank(_deployer);
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -127,7 +136,7 @@ contract OwnableTest is Test {
         vm.startPrank(_deployer);
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -142,7 +151,11 @@ contract OwnableTest is Test {
         vm.stopPrank();
     }
 
-    function testOwnableDoesNotFollowProject(address _deployer, address _projectOwner, address _newProjectOwner)
+    function testOwnableDoesNotFollowProject(
+        address _deployer,
+        address _projectOwner,
+        address _newProjectOwner
+    )
         public
         isNotContract(_deployer)
         isNotContract(_projectOwner)
@@ -158,7 +171,7 @@ contract OwnableTest is Test {
 
         // Create the Ownable contract
         vm.prank(_deployer);
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Make sure the deployer owns it
         assertEq(_deployer, ownable.owner(), "Deployer is not the owner");
@@ -183,7 +196,7 @@ contract OwnableTest is Test {
         vm.assume(_owner != address(0));
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnership(_owner);
@@ -203,7 +216,7 @@ contract OwnableTest is Test {
         uint256 _projectId = projects.createFor(_projectOwner, "");
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnershipToProject(_projectId);
@@ -220,7 +233,10 @@ contract OwnableTest is Test {
         address _callerAddress,
         uint8 _permissionIndexRequired,
         uint8[] memory _permissionsToGrant
-    ) public isNotContract(_projectOwner) {
+    )
+        public
+        isNotContract(_projectOwner)
+    {
         // CreateFor won't work if the address is a contract (that doesn't support ERC721Receiver)
         vm.assume(_projectOwner != address(0) && _callerAddress != _projectOwner);
 
@@ -230,7 +246,7 @@ contract OwnableTest is Test {
         uint256 _projectId = projects.createFor(_projectOwner, "");
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnershipToProject(_projectId);
@@ -256,7 +272,7 @@ contract OwnableTest is Test {
 
         // The owner gives permission to the caller
         vm.prank(_projectOwner);
-        operatorStore.setOperator(
+        permissions.setPermissionsFor(
             JBPermissionsData({operator: _callerAddress, domain: _projectId, permissionIndexes: _permissionIndexes})
         );
 
@@ -273,7 +289,10 @@ contract OwnableTest is Test {
         address _callerAddress,
         uint8 _permissionIndexRequired,
         uint8[] memory _permissionsToGrant
-    ) public isNotContract(_projectOwner) {
+    )
+        public
+        isNotContract(_projectOwner)
+    {
         // CreateFor won't work if the address is a contract (that doesn't support ERC721Receiver)
         vm.assume(_projectOwner != address(0) && _callerAddress != _projectOwner);
 
@@ -283,7 +302,7 @@ contract OwnableTest is Test {
         uint256 _projectId = projects.createFor(_projectOwner, "");
 
         // Create the Ownable contract
-        MockOwnable ownable = new MockOwnable(projects, operatorStore);
+        MockOwnable ownable = new MockOwnable(projects, permissions);
 
         // Transfer ownership to the project owner
         ownable.transferOwnershipToProject(_projectId);
@@ -308,7 +327,7 @@ contract OwnableTest is Test {
 
         // The owner gives permission to the caller
         vm.prank(_projectOwner);
-        operatorStore.setOperator(
+        permissions.setPermissionsFor(
             JBPermissionsData({operator: _callerAddress, domain: _projectId, permissionIndexes: _permissionIndexes})
         );
 

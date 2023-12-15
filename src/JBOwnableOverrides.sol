@@ -35,10 +35,10 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     //*********************************************************************//
 
     /**
-     * @notice 
+     * @notice
      *     A contract storing operator assignments.
      */
-    IJBPermissions public immutable operatorStore;
+    IJBPermissions public immutable PERMISSIONS;
 
     /**
      * @notice
@@ -62,10 +62,10 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
 
     /**
      * @param _projects the JBProjects to use to get the owner of the project
-     *   @param _operatorStore the operatorStore to use for the permissions
+     *   @param _permissions the PERMISSIONS to use for the permissions
      */
-    constructor(IJBProjects _projects, IJBPermissions _operatorStore) {
-        operatorStore = _operatorStore;
+    constructor(IJBProjects _projects, IJBPermissions _permissions) {
+        PERMISSIONS = _permissions;
         projects = _projects;
 
         _transferOwnership(msg.sender);
@@ -77,10 +77,10 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
 
     /**
      * @notice
-     *     Only allows the speficied account or an operator of the account to proceed. 
-     * 
+     *     Only allows the speficied account or an operator of the account to proceed.
+     *
      *     @param _account The account to check for.
-     *     @param _domain The domain namespace to look for an operator within. 
+     *     @param _domain The domain namespace to look for an operator within.
      *     @param _permissionIndex The index of the permission to check for.
      */
     modifier requirePermission(address _account, uint256 _domain, uint256 _permissionIndex) {
@@ -91,9 +91,9 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     /**
      * @notice
      *     Only allows callers that have received permission from the projectOwner for this project.
-     * 
+     *
      *     @dev If the owner is not a project then this will always revert
-     * 
+     *
      *     @param _permissionIndex The index of the permission to check for.
      */
     modifier requirePermissionFromProject(uint256 _permissionIndex) {
@@ -112,11 +112,11 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
 
     /**
      * @notice
-     *     Only allows the speficied account, an operator of the account to proceed, or a truthy override flag. 
-     * 
+     *     Only allows the speficied account, an operator of the account to proceed, or a truthy override flag.
+     *
      *     @param _account The account to check for.
-     *     @param _domain The domain namespace to look for an operator within. 
-     *     @param _permissionIndex The index of the permission to check for. 
+     *     @param _domain The domain namespace to look for an operator within.
+     *     @param _permissionIndex The index of the permission to check for.
      *     @param _override A condition to force allowance for.
      */
     modifier requirePermissionAllowingOverride(
@@ -149,7 +149,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     /**
      * @notice Leaves the contract without owner. It will not be possible to call
      *    `onlyOwner`/`_checkOwner` functions anymore. Can only be called by the current owner.
-     *  
+     *
      *    NOTE: Renouncing ownership will leave the contract without an owner,
      *    thereby removing any functionality that is only available to the owner.
      */
@@ -202,7 +202,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     /**
      * @dev Sets the permission index that allows other callers to perform operations on behave of the project owner
      *    Internal function without access restriction.
-     * 
+     *
      *    @param _permissionIndex the permissionIndex to use for 'onlyOwner' calls
      */
     function _setPermissionIndex(uint8 _permissionIndex) internal virtual {
@@ -212,7 +212,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
 
     /**
      * @dev helper to allow for drop-in replacement of OZ
-     * 
+     *
      *    @param _newOwner the static address that should become the owner of this contract
      */
     function _transferOwnership(address _newOwner) internal virtual {
@@ -222,7 +222,7 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     /**
      * @dev Transfers ownership of the contract to a new account (`_newOwner`) OR a project (`_projectID`).
      *    Internal function without access restriction.
-     * 
+     *
      *    @param _newOwner the static owner address that should receive ownership
      *    @param _projectId the projectId this contract should follow ownership of
      */
@@ -260,23 +260,25 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
     /**
      * @dev
      * Require the message sender is either the account or has the specified permission.
-     * 
+     *
      * @param _account The account to allow.
      * @param _domain The domain namespace within which the permission index will be checked.
-     * @param _permissionIndex The permission index that an operator must have within the specified domain to be allowed.
+     * @param _permissionIndex The permission index that an operator must have within the specified domain to be
+     * allowed.
      */
     function _requirePermission(address _account, uint256 _domain, uint256 _permissionIndex) internal view virtual {
         address _sender = _msgSender();
         if (
-            _sender != _account && !operatorStore.hasPermission(_sender, _account, _domain, _permissionIndex)
-                && !operatorStore.hasPermission(_sender, _account, 0, _permissionIndex)
+            _sender != _account && !PERMISSIONS.hasPermission(_sender, _account, _domain, _permissionIndex)
+                && !PERMISSIONS.hasPermission(_sender, _account, 0, _permissionIndex)
         ) revert UNAUTHORIZED();
     }
 
     /**
      * @dev
-     * Require the message sender is either the account, has the specified permission, or the override condition is true.
-     * 
+     * Require the message sender is either the account, has the specified permission, or the override condition is
+     * true.
+     *
      * @param _account The account to allow.
      * @param _domain The domain namespace within which the permission index will be checked.
      * @param _domain The permission index that an operator must have within the specified domain to be allowed.
@@ -287,7 +289,11 @@ abstract contract JBOwnableOverrides is Context, IJBOwnable, IJBPermissioned {
         uint256 _domain,
         uint256 _permissionIndex,
         bool _override
-    ) internal view virtual {
+    )
+        internal
+        view
+        virtual
+    {
         // short-circuit if the override is true
         if (_override) return;
         // Perform regular check otherwise
