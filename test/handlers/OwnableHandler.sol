@@ -7,17 +7,17 @@ import {StdCheats} from "forge-std/StdCheats.sol";
 import {StdUtils} from "forge-std/StdUtils.sol";
 import {console} from "forge-std/console.sol";
 
-import { MockOwnable, JBOwnableOverrides } from "../mocks/MockOwnable.sol";
+import {MockOwnable, JBOwnableOverrides} from "../mocks/MockOwnable.sol";
 import {IJBPermissions} from "lib/juice-contracts-v4/src/interfaces/IJBPermissions.sol";
 import {JBPermissions} from "lib/juice-contracts-v4/src/JBPermissions.sol";
 import {JBPermissionsData} from "lib/juice-contracts-v4/src/structs/JBPermissions.sol";
 import {IJBProjects} from "lib/juice-contracts-v4/src/interfaces/IJBProjects.sol";
 import {JBProjects} from "lib/juice-contracts-v4/src/JBProjects.sol";
 
-contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
-    IJBProjects immutable public projects;
-    IJBPermissions immutable public operatorStore;
-    MockOwnable immutable public ownable;
+contract OwnableHandler is CommonBase, StdCheats, StdUtils {
+    IJBProjects public immutable projects;
+    IJBPermissions public immutable operatorStore;
+    MockOwnable public immutable ownable;
 
     address[] public actors;
     address internal currentActor;
@@ -37,19 +37,13 @@ contract OwnableHandler is CommonBase, StdCheats, StdUtils  {
         projects = new JBProjects(operatorStore);
         // Deploy the JBOwnable
         vm.prank(_initialOwner);
-        ownable = new MockOwnable(
-            projects,
-            operatorStore
-        );
+        ownable = new MockOwnable(projects, operatorStore);
 
         actors.push(_initialOwner);
         actors.push(address(420));
     }
 
-    function transferOwnershipToAddress(
-        uint256 actorIndexSeed,
-        address _newOwner
-    ) public useActor(actorIndexSeed) {
+    function transferOwnershipToAddress(uint256 actorIndexSeed, address _newOwner) public useActor(actorIndexSeed) {
         ownable.transferOwnership(_newOwner);
     }
 }

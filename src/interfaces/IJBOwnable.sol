@@ -8,14 +8,7 @@ interface IJBOwnable {
     // );
     event PermissionIndexChanged(uint8 newIndex);
 
-    function jbOwner()
-        external
-        view
-        returns (
-            address owner,
-            uint88 projectOwner,
-            uint8 permissionIndex
-        );
+    function jbOwner() external view returns (address owner, uint88 projectOwner, uint8 permissionIndex);
 
     function transferOwnershipToProject(uint256 _projectId) external;
 
